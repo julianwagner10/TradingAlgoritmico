@@ -3,6 +3,67 @@ import sys
 import backtrader as bt
 import datetime  # For datetime objects
 
+class MACDStrategy(bt.Strategy):
+    params = (
+        ("macd_short", 12),
+        ("macd_long", 26),
+        ("macd_signal", 9),
+        ('printlog', False),
+    )
+
+    def __init__(self):
+        # Crear el indicador MACD
+        self.macd = bt.indicators.MACD(
+            self.data.close,
+            period_me1=self.params.macd_short,
+            period_me2=self.params.macd_long,
+            period_signal=self.params.macd_signal
+        )
+
+    def log(self, txt, dt=None, doprint=False):
+        if self.params.printlog or doprint:
+            dt = dt or self.datas[0].datetime.date(0)
+            print('%s, %s' % (dt.isoformat(), txt))
+
+    def notify_order(self, order):
+        if order.status in [order.Submitted, order.Accepted]:
+            return
+
+        if order.status in [order.Completed]:
+            if order.isbuy():
+                self.log(
+                    'BUY EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
+                    (order.executed.price,
+                     order.executed.value,
+                     order.executed.comm))
+            else:  # Sell
+                self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
+                         (order.executed.price,
+                          order.executed.value,
+                          order.executed.comm))
+        elif order.status in [order.Canceled, order.Margin, order.Rejected]:
+            self.log('Order Canceled/Margin/Rejected')
+
+        self.order = None
+
+    def notify_trade(self, trade):
+        if not trade.isclosed:
+            return
+
+        self.log('OPERATION PROFIT, GROSS %.2f, NET %.2f' %
+                 (trade.pnl, trade.pnlcomm))
+        
+    def next(self):
+        if self.macd.macd[0] > self.macd.signal[0] and self.macd.macd[-1] <= self.macd.signal[-1]:
+            # Señal de compra: MACD cruza de abajo hacia arriba a la señal
+            self.log('MACD Cross Up - BUY SIGNAL')
+            self.buy()
+
+        elif self.macd.macd[0] < self.macd.signal[0] and self.macd.macd[-1] >= self.macd.signal[-1]:
+            # Señal de venta: MACD cruza de arriba hacia abajo a la señal
+            self.log('MACD Cross Down - SELL SIGNAL')
+            self.sell()
+
 
 
 class GoldenDeathCrossStrategy(bt.Strategy):
@@ -25,7 +86,6 @@ class GoldenDeathCrossStrategy(bt.Strategy):
         self.crossover = bt.indicators.CrossOver(self.short_ma, self.long_ma)
 
     def log(self, txt, dt=None, doprint=False):
-        ''' Logging function fot this strategy'''
         if self.params.printlog or doprint:
             dt = dt or self.datas[0].datetime.date(0)
             print('%s, %s' % (dt.isoformat(), txt))
@@ -101,6 +161,8 @@ if __name__ == '__main__':
         long_period = 200,
         )
 
+    cerebro.addstrategy(MACDStrategy)
+  
     cerebro.broker.setcash(10000.0)
 
     cerebro.addsizer(bt.sizers.FixedSize, stake=10)
