@@ -52,6 +52,7 @@ class TestStrategy(bt.Strategy):
     def next(self):
         # Simply log the closing price of the series from the reference
         self.log('Close, %.2f' % self.dataclose[0])
+        print(f"valor de  - RSI: {self.rsi[0]}")
 
         # Check if an order is pending ... if yes, we cannot send a 2nd one
         if self.order:
@@ -60,12 +61,11 @@ class TestStrategy(bt.Strategy):
         # Check if we are in the market
         if not self.position:
 
-            if ((self.data.close > self.sma) and (self.data.close < self.boll.lines.bot)):
+            if self.data.close < self.boll.lines.bot and self.dataclose > self.sma and self.rsi <25:
                     # BUY, BUY, BUY!!! (with default parameters)
                     self.log('BUY CREATE, %.2f' % self.dataclose[0])
-
                     # Keep track of the created order to avoid a 2nd order
-                    self.order = self.buy(exectype=bt.Order.Limit, price=0.80 * self.dataclose[0])
+                    self.order = self.buy()
 
         else:
 
