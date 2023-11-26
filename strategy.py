@@ -61,10 +61,10 @@ class GoldenDeathCrossStrategy(bt.Strategy):
     def next(self):
         crossover_value = self.crossover[0]
         if crossover_value == 1:
-            print('Compre')
+            self.log('BUY CREATE, %.2f' % self.dataclose[0], doprint=True)
             self.order = self.buy()
         elif crossover_value == -1:
-            print('Vendi')
+            self.log('SELL CREATE, %.2f' % self.dataclose[0], doprint=True)
             self.order = self.sell()
 
     def stop(self):
@@ -93,7 +93,13 @@ if __name__ == '__main__':
     
     cerebro.adddata(data)
 
-    cerebro.addstrategy(GoldenDeathCrossStrategy)
+    #cerebro.addstrategy(GoldenDeathCrossStrategy)
+    
+    strats = cerebro.optstrategy(
+        GoldenDeathCrossStrategy,
+        short_period= 50,
+        long_period = 200,
+        )
 
     cerebro.broker.setcash(10000.0)
 
@@ -106,3 +112,4 @@ if __name__ == '__main__':
     cerebro.run(maxcpus=1)
 
     print('Capital Final: %.2f' % cerebro.broker.getvalue())
+
