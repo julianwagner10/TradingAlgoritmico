@@ -268,6 +268,14 @@ class RSI_Strategy(bt.Strategy):
 class Merge_Strategys (bt.Strategy):
 
     # aca vamos a definir tod_os los parametros
+    params = (
+        ("short_period", 50),
+        ("long_period", 200),
+        ('printlog', False),
+        ("macd_short", 12),
+        ("macd_long", 26),
+        ("macd_signal", 9),
+    )
 
     # definimos el init con todos los indicadores:
     def __init__(self):
@@ -294,7 +302,7 @@ class Merge_Strategys (bt.Strategy):
         # crear indicador bolling bands
         self.sma = bt.ind.SMA(period=200)
         self.boll = bt.ind.BollingerBands(period=20, devfactor=2.5)
-        self.rsi = bt.ind.RSI(period=2, safediv=True)
+        self.rsi_B = bt.ind.RSI(period=2, safediv=True)
 
         # crear indicador GoldenDeath
 
@@ -337,12 +345,27 @@ class Merge_Strategys (bt.Strategy):
 
     # aca vamos a definir todas las combinaciones de la estrategia
     def next(self):
-        if self.macd.macd[0] > self.macd.signal[0] and self.macd.macd[-1] <= self.macd.signal[-1]:
+
+        crossover_value = self.crossover[0]
+
+
+        if (self.macd.macd[0] > self.macd.signal[0] and self.macd.macd[-1] <= self.macd.signal[-1]) and (crossover_value == 1):
             # Señal de compra: MACD cruza de abajo hacia arriba a la señal
             self.log('MACD Cross Up - BUY SIGNAL')
             self.buy()
 
-        elif self.macd.macd[0] < self.macd.signal[0] and self.macd.macd[-1] >= self.macd.signal[-1]:
+
+        if (self.rsi < 25) and (crossover_value == 1):
+            # Señal de compra: MACD cruza de abajo hacia arriba a la señal
+            self.log('MACD Cross Up - BUY SIGNAL')
+            self.buy()
+
+        elif (self.macd.macd[0] < self.macd.signal[0] and self.macd.macd[-1] >= self.macd.signal[-1]) and (crossover_value == -1):
+            # Señal de venta: MACD cruza de arriba hacia abajo a la señal
+            self.log('MACD Cross Down - SELL SIGNAL')
+            self.sell()
+
+        elif (self.rsi > 70) and (crossover_value == -1):
             # Señal de venta: MACD cruza de arriba hacia abajo a la señal
             self.log('MACD Cross Down - SELL SIGNAL')
             self.sell()
@@ -370,14 +393,8 @@ if __name__ == '__main__':
     cerebro.adddata(data)
 
     #cerebro.addstrategy(GoldenDeathCrossStrategy)
-    
-    strats = cerebro.optstrategy(
-        GoldenDeathCrossStrategy,
-        short_period= 50,
-        long_period = 200,
-        )
 
-    cerebro.addstrategy(MACDStrategy)
+    cerebro.addstrategy(Merge_Strategys)
   
     cerebro.broker.setcash(10000.0)
 
