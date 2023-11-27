@@ -3,7 +3,7 @@ import sys
 import backtrader as bt
 import datetime  # For datetime objects
 
-class MACDStrategy(bt.Strategy):
+"""class MACDStrategy(bt.Strategy):
     params = (
         ("macd_short", 12),
         ("macd_long", 26),
@@ -63,10 +63,10 @@ class MACDStrategy(bt.Strategy):
             # Señal de venta: MACD cruza de arriba hacia abajo a la señal
             self.log('MACD Cross Down - SELL SIGNAL')
             self.sell()
+"""
 
 
-
-class GoldenDeathCrossStrategy(bt.Strategy):
+"""class GoldenDeathCrossStrategy(bt.Strategy):
     params = (
         ("short_period", 50),
         ("long_period", 200),
@@ -130,10 +130,10 @@ class GoldenDeathCrossStrategy(bt.Strategy):
     def stop(self):
         self.log('Ending Value %.2f' %
                  (self.broker.getvalue()), doprint=True)
+"""
 
 
-
-class Bolling_Bands_Strategy(bt.Strategy):
+"""class Bolling_Bands_Strategy(bt.Strategy):
     def log(self, txt, dt=None):
         ''' Logging function fot this strategy'''
         dt = dt or self.datas[0].datetime.date(0)
@@ -198,9 +198,9 @@ class Bolling_Bands_Strategy(bt.Strategy):
 
                 # Keep track of the created order to avoid a 2nd order
                 self.order = self.sell()
+"""
 
-
-class RSI_Strategy(bt.Strategy):
+"""class RSI_Strategy(bt.Strategy):
     def log(self, txt, dt=None):
         ''' Logging function fot this strategy'''
         dt = dt or self.datas[0].datetime.date(0)
@@ -261,10 +261,9 @@ class RSI_Strategy(bt.Strategy):
 
                 # Keep track of the created order to avoid a 2nd order
                 self.order = self.sell()
-
+"""
 
 # Vamos a definir una clase que contenga tod_os los inidcadores en el apartado Init
-
 class Merge_Strategys (bt.Strategy):
 
     # aca vamos a definir tod_os los parametros
@@ -345,38 +344,35 @@ class Merge_Strategys (bt.Strategy):
 
     # aca vamos a definir todas las combinaciones de la estrategia
     def next(self):
-
+        self.log('Close, %.2f' % self.dataclose[0],doprint=True)
         crossover_value = self.crossover[0]
 
-
         if (self.macd.macd[0] > self.macd.signal[0] and self.macd.macd[-1] <= self.macd.signal[-1]) and (crossover_value == 1):
-            # Señal de compra: MACD cruza de abajo hacia arriba a la señal
-            self.log('MACD Cross Up - BUY SIGNAL')
+            # SeÃ±al de compra: MACD cruza de abajo hacia arriba a la seÃ±al
+            self.log('MACD Cross Up - BUY SIGNAL',doprint=True)
             self.buy()
 
 
         if (self.rsi < 25) and (crossover_value == 1):
-            # Señal de compra: MACD cruza de abajo hacia arriba a la señal
-            self.log('MACD Cross Up - BUY SIGNAL')
+            # SeÃ±al de compra: MACD cruza de abajo hacia arriba a la seÃ±al
+            self.log('MACD Cross Up - BUY SIGNAL',doprint=True)
             self.buy()
 
         elif (self.macd.macd[0] < self.macd.signal[0] and self.macd.macd[-1] >= self.macd.signal[-1]) and (crossover_value == -1):
-            # Señal de venta: MACD cruza de arriba hacia abajo a la señal
-            self.log('MACD Cross Down - SELL SIGNAL')
+            # SeÃ±al de venta: MACD cruza de arriba hacia abajo a la seÃ±al
+            self.log('MACD Cross Down - SELL SIGNAL',doprint=True)
             self.sell()
 
         elif (self.rsi > 70) and (crossover_value == -1):
-            # Señal de venta: MACD cruza de arriba hacia abajo a la señal
-            self.log('MACD Cross Down - SELL SIGNAL')
+            # SeÃ±al de venta: MACD cruza de arriba hacia abajo a la seÃ±al
+            self.log('MACD Cross Down - SELL SIGNAL',doprint=True)
             self.sell()
-
 
 
 # Configurar el entorno de Backtrader
 if __name__ == '__main__':
     modpath = os.path.dirname(os.path.abspath(sys.argv[0]))
-    datapath = os.path.join(modpath, r'C:\Users\julia\OneDrive\Desktop\Trading Algoritmico\orcl-1995-2014.txt')
-
+    datapath = os.path.join(modpath, r'C:\Users\julia\OneDrive\Desktop\TradingAlgoritmico\orcl-1995-2014.txt')
     # Configurar el cerebro de Backtrader
     cerebro = bt.Cerebro()
 
@@ -392,7 +388,6 @@ if __name__ == '__main__':
     
     cerebro.adddata(data)
 
-    #cerebro.addstrategy(GoldenDeathCrossStrategy)
 
     cerebro.addstrategy(Merge_Strategys)
   
