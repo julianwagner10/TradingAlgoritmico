@@ -344,28 +344,35 @@ class Merge_Strategys (bt.Strategy):
 
     # aca vamos a definir todas las combinaciones de la estrategia
     def next(self):
-        self.log('Close, %.2f' % self.dataclose[0],doprint=True)
+        self.log('Close, %.2f' % self.dataclose[0])
         crossover_value = self.crossover[0]
 
-        if (self.macd.macd[0] > self.macd.signal[0] and self.macd.macd[-1] <= self.macd.signal[-1]) and (crossover_value == 1):
+        if (self.macd.macd[0] > self.macd.signal[0] and self.macd.macd[-1] <= self.macd.signal[-1]):
             # SeÃ±al de compra: MACD cruza de abajo hacia arriba a la seÃ±al
             self.log('MACD Cross Up - BUY SIGNAL',doprint=True)
             self.buy()
-
-
-        if (self.rsi < 25) and (crossover_value == 1):
-            # SeÃ±al de compra: MACD cruza de abajo hacia arriba a la seÃ±al
-            self.log('MACD Cross Up - BUY SIGNAL',doprint=True)
-            self.buy()
-
-        elif (self.macd.macd[0] < self.macd.signal[0] and self.macd.macd[-1] >= self.macd.signal[-1]) and (crossover_value == -1):
+        
+        elif (self.macd.macd[0] < self.macd.signal[0] and self.macd.macd[-1] >= self.macd.signal[-1]):
             # SeÃ±al de venta: MACD cruza de arriba hacia abajo a la seÃ±al
             self.log('MACD Cross Down - SELL SIGNAL',doprint=True)
             self.sell()
 
-        elif (self.rsi > 70) and (crossover_value == -1):
+        if crossover_value == 1 :
+            self.log('GOLDEN DEATH CROSS - BUY SIGNAL',doprint=True)
+            self.buy()
+
+        elif crossover_value == -1 :
+            self.log('GOLDEN DEATH CROSS - BUY SIGNAL',doprint=True)
+            self.sell()
+
+        if (self.rsi < 30):
+            # SeÃ±al de compra: MACD cruza de abajo hacia arriba a la seÃ±al
+            self.log('RSI - BUY SIGNAL',doprint=True)
+            self.buy()
+
+        elif (self.rsi > 70):
             # SeÃ±al de venta: MACD cruza de arriba hacia abajo a la seÃ±al
-            self.log('MACD Cross Down - SELL SIGNAL',doprint=True)
+            self.log('RSI - SELL SIGNAL',doprint=True)
             self.sell()
 
 
