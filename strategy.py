@@ -1,7 +1,7 @@
 import os
 import sys
 import backtrader as bt
-import datetime  # For datetime objects
+import datetime  
 import matplotlib.pyplot as plt
 
 class MACDStrategy(bt.Strategy):
@@ -128,8 +128,8 @@ class GoldenDeathCrossStrategy(bt.Strategy):
         if not trade.isclosed:
             return
 
-        #self.log('OPERATION PROFIT, GROSS %.2f, NET %.2f' %
-        #         (trade.pnl, trade.pnlcomm))
+        self.log('OPERATION PROFIT, GROSS %.2f, NET %.2f' %
+                 (trade.pnl, trade.pnlcomm))
 
     def next(self):
         crossover_value = self.crossover[0]
@@ -161,7 +161,7 @@ class Bolling_Bands_Strategy(bt.Strategy):
             print('%s, %s' % (dt.isoformat(), txt))
 
     def __init__(self):
-        # Keep a reference to the "close" line in the data[0] dataseries
+
         self.dataclose = self.datas[0].close
         self.order = None
         self.buyprice = None
@@ -171,34 +171,32 @@ class Bolling_Bands_Strategy(bt.Strategy):
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
-            # Buy/Sell order submitted/accepted to/by broker - Nothing to do
             return
 
-        # Check if an order has been completed
-        # Attention: broker could reject order if not enough cash
         if order.status in [order.Completed]:
             if order.isbuy():
-                self.log('BUY EXECUTED, %.2f' % order.executed.price)
-            elif order.issell():
-                self.log('SELL EXECUTED, %.2f' % order.executed.price)
-
+                self.log(
+                    'BUY EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
+                    (order.executed.price,
+                     order.executed.value,
+                     order.executed.comm))
+            else:  # Sell
+                self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
+                         (order.executed.price,
+                          order.executed.value,
+                          order.executed.comm))
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             self.log('Order Canceled/Margin/Rejected')
 
-        # Write down: no pending order
         self.order = None
 
     def next(self):
-        # Simply log the closing price of the series from the reference
-        #self.log('Close, %.2f' % self.dataclose[0])
 
-        # Check if an order is pending ... if yes, we cannot send a 2nd one
         if self.order:
             return
 
         # Check if we are in the market
         if not self.position:    
-        # Estrategia Bollinger Bands
             if (self.dataclose[0] > self.boll.lines.bot and self.dataclose[-1] <= self.boll.lines.bot[-1]):
                 self.log('BUY CREATE Bollinger Bands, %.2f' % self.dataclose[0],doprint=True)
                 self.order = self.buy()
@@ -218,7 +216,7 @@ class RSI_Strategy(bt.Strategy):
             print('%s, %s' % (dt.isoformat(), txt))
 
     def __init__(self):
-        # Keep a reference to the "close" line in the data[0] dataseries
+
         self.dataclose = self.datas[0].close
         self.order = None
         self.buyprice = None
@@ -228,26 +226,26 @@ class RSI_Strategy(bt.Strategy):
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
-            # Buy/Sell order submitted/accepted to/by broker - Nothing to do
             return
 
-        # Check if an order has been completed
-        # Attention: broker could reject order if not enough cash
         if order.status in [order.Completed]:
             if order.isbuy():
-                self.log('BUY EXECUTED, %.2f' % order.executed.price)
-            elif order.issell():
-                self.log('SELL EXECUTED, %.2f' % order.executed.price)
-
+                self.log(
+                    'BUY EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
+                    (order.executed.price,
+                     order.executed.value,
+                     order.executed.comm))
+            else:  # Sell
+                self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
+                         (order.executed.price,
+                          order.executed.value,
+                          order.executed.comm))
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             self.log('Order Canceled/Margin/Rejected')
 
-        # Write down: no pending order
         self.order = None
 
     def next(self):
-        # Simply log the closing price of the series from the reference
-        #self.log('Close, %.2f' % self.dataclose[0])
 
         if self.order:
             return
@@ -257,15 +255,11 @@ class RSI_Strategy(bt.Strategy):
 
             if self.rsi < 30:
                 self.log('BUY CREATE RSI, %.2f' % self.dataclose[0],doprint=True)
-                # Keep track of the created order to avoid a 2nd order
                 self.order = self.buy()
 
         else:
-            # Already in the market ... we might sell
             if (self.rsi > 70):
                 self.log('SELL CREATE RSI, %.2f' % self.dataclose[0],doprint=True)
-
-                # Keep track of the created order to avoid a 2nd order
                 self.order = self.sell()
 
 
@@ -279,11 +273,8 @@ if __name__ == '__main__':
     # Añadir el data feed
     data = bt.feeds.YahooFinanceCSVData(
         dataname=datapath,
-        # Do not pass values before this date
         fromdate=datetime.datetime(1996, 1, 1),
-        # Do not pass values before this date
         todate=datetime.datetime(2005, 12, 31),
-        # Do not pass values after this date
         reverse=False)
     
     cerebro.adddata(data)
