@@ -131,8 +131,8 @@ class GoldenDeathCrossStrategy(bt.Strategy):
         if not trade.isclosed:
             return
 
-        self.log('OPERATION PROFIT, GROSS %.2f, NET %.2f' %
-                 (trade.pnl, trade.pnlcomm))
+        #self.log('OPERATION PROFIT, GROSS %.2f, NET %.2f' %
+        #         (trade.pnl, trade.pnlcomm))
 
     def next(self):
         crossover_value = self.crossover[0]
@@ -143,11 +143,11 @@ class GoldenDeathCrossStrategy(bt.Strategy):
         # Check if we are in the market
         if not self.position:        
             if crossover_value == 1:
-                self.log('BUY CREATE, %.2f' % self.dataclose[0], doprint=True)
+                self.log('BUY CREATE, %.2f' % self.dataclose[0])
                 self.order = self.buy()
         else:
             if crossover_value == -1:
-                self.log('SELL CREATE, %.2f' % self.dataclose[0], doprint=True)
+                self.log('SELL CREATE, %.2f' % self.dataclose[0])
                 self.order = self.sell()
 
     def stop(self):
@@ -193,7 +193,7 @@ class Bolling_Bands_Strategy(bt.Strategy):
 
     def next(self):
         # Simply log the closing price of the series from the reference
-        self.log('Close, %.2f' % self.dataclose[0])
+        #self.log('Close, %.2f' % self.dataclose[0])
 
         # Check if an order is pending ... if yes, we cannot send a 2nd one
         if self.order:
@@ -203,11 +203,11 @@ class Bolling_Bands_Strategy(bt.Strategy):
         if not self.position:    
         # Estrategia Bollinger Bands
             if (self.dataclose[0] > self.boll.lines.bot and self.dataclose[-1] <= self.boll.lines.bot[-1]):
-                self.log('Bollinger Bands - BUY SIGNAL', doprint=True)
+                self.log('Bollinger Bands - BUY SIGNAL')
                 self.buy()
         else:
             if (self.dataclose[0] < self.boll.lines.top and self.dataclose[-1] >= self.boll.lines.top[-1]):
-                self.log('Bollinger Bands - SELL SIGNAL', doprint=True)
+                self.log('Bollinger Bands - SELL SIGNAL')
                 self.sell()
 
 
@@ -248,7 +248,7 @@ class RSI_Strategy(bt.Strategy):
 
     def next(self):
         # Simply log the closing price of the series from the reference
-        self.log('Close, %.2f' % self.dataclose[0])
+        #self.log('Close, %.2f' % self.dataclose[0])
 
         if self.order:
             return
